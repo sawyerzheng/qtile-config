@@ -52,7 +52,8 @@ mod = "mod4"
 terminal = guess_terminal()
 
 class Commands:
-    dmenu = 'rofi -show run -theme dmenu'
+    rofi_dmenu = 'rofi -show run -theme dmenu'
+    rofi_combi = 'rofi -icon-theme "Papirus" -show-icons -show combi'
 
 
 keys = [
@@ -93,8 +94,9 @@ keys = [
     Key([mod], "q", lazy.window.kill(), desc="Kill focused window"),
     Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
     Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
-    Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
-    EzKey("s-<semicolon>", lazy.spawn(Commands.dmenu), desc="Spawn a command using a prompt widget"),
+    # Key([mod], "r", lazy.spawncmd(), desc="Spawn a command using a prompt widget"),
+    Key([mod], "r", lazy.spawn(Commands.rofi_combi), desc="Spawn a command using a prompt widget"),
+    EzKey("s-<semicolon>", lazy.spawn(Commands.rofi_dmenu), desc="Spawn a command using a prompt widget"),
     EzKey("s-<comma>", lazy.spawn('em'), desc="Quick emacs(em)"),
 
     # screen switch
