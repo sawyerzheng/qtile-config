@@ -21,9 +21,9 @@ os.environ.update(cmds.my_set_env())
 qtile_path = Path(__file__).parent.expanduser().absolute()
 
 layout_config = config = {
-    "border_focus": palette.sky,
+    "border_focus": palette.teal,
     "border_normal": palette.base,
-    "border_width": 2,
+    "border_width": Sizes.window_border_width,
     "margin": Sizes.window_margin,
     "single_border_width": 0,
     "single_margin": Sizes.window_single_margin,

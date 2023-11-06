@@ -23,7 +23,7 @@ class Sizes:
         padding = 4
         sep_size = 65
 
-        window_border_width = 4
+        window_border_width = 2
 
         # window arangement sizes
         window_margin = 20 
@@ -35,8 +35,8 @@ class Sizes:
         font_size = 14
         sep_size = 37
         padding = 2
-        window_border_width = 4
 
         # window arangement sizes
-        margin = 10
-        single_margin = 10
+        window_border_width = 1
+        window_margin = 8
+        window_single_margin = 4
