@@ -1,54 +1,252 @@
 import os
-from libqtile import bar, widget
+from libqtile import bar, init, widget
 from libqtile.lazy import lazy
 from libqtile.config import Screen
+from libqtile.backend.base import drawer
 
 from utils import cmds
 from utils.sizes import Sizes
-# keyboard_widget = widget.KeyboardLayout(configured_keyboards=["us", "cn"])
+from utils.palette import palette
 
-# my_screen = Screen(
-#     bottom=bar.Bar(
-#         [
-#             widget.CurrentLayout(),
-#             widget.GroupBox(),
-#             widget.Prompt(),
-#             widget.WindowName(),
-#             widget.Chord(
-#                 chords_colors={
-#                     "launch": ("#ff0000", "#ffffff"),
-#                 },
-#                 name_transform=lambda name: name.upper(),
-#             ),
-#             widget.TextBox("my conf", name="default"),
-#             widget.TextBox(" &lt;s-r&gt;", foreground="#d75f5f"),
-#             # widget.KeyboardLayout(configured_keyboards=['us', 'cn']),
-#             keyboard_widget,
-#             # NB Systray is incompatible with Wayland, consider using StatusNotifier instead
-#             # widget.StatusNotifier(),
-#             widget.Systray(),
-#             widget.Volume(),
-#             # widget.CPUGraph(),
-#             widget.CPUGraph(),
-#             widget.Memory(measure_mem='G'),
-#             # widget.Clock(format="%Y-%m-%d %a %I:%M %p"),
-#             widget.Wttr(format="Hefei: %c%f", location={"hefei": "hefei"}, units="m"),
-#             widget.Clock(format="%m-%d %a %H:%M"),
-#             widget.QuickExit(),
-#         ],
-#         configs.bar_size,
-#         # border_width=[2, 0, 2, 0],  # Draw top and bottom borders
-#         # border_color=["ff00ff", "000000", "ff00ff", "000000"]  # Borders are magenta
-#     ),
-#     # You can uncomment this variable if you see that on X11 floating resize/moving is laggy
-#     # By default we handle these events delayed to already improve performance, however your system might still be struggling
-#     # This variable is set to None (no cap) by default, but you can set it to 60 to indicate that you limit it to 60 events per second
-#     # x11_drag_polling_rate = 60,
-# )
-# screens = [
-#     my_screen,
-#     # copy.deepcopy(my_screen),
-# ]
+
+def framed(self, border_width, border_color, pad_x, pad_y, highlight_color=None):
+    return TextFrame(
+        self, border_width, border_color, pad_x, pad_y, highlight_color=highlight_color
+    )
+
+
+class TextFrame(drawer.TextFrame):
+    def __init__(
+        self, layout, border_width, border_color, pad_x, pad_y, highlight_color=None
+    ):
+        super().__init__(
+            layout, border_width, border_color, pad_x, pad_y, highlight_color
+        )
+
+    def draw(
+        self, x, y, rounded=True, fill=False, line=False, highlight=False, invert=False
+    ):
+        self.drawer.set_source_rgb(self.border_color)
+        opts = [
+            x,
+            y,
+            self.layout.width + self.pad_left + self.pad_right,
+            self.layout.height + self.pad_top + self.pad_bottom,
+            self.border_width,
+        ]
+        if line:
+            if highlight:
+                self.drawer.set_source_rgb(self.highlight_color)
+                self.drawer.fillrect(*opts)
+                self.drawer.set_source_rgb(self.border_color)
+
+            opts[1] = 0 if invert else self.height - self.border_width
+            opts[3] = self.border_width
+
+            self.drawer.fillrect(*opts)
+        elif fill:
+            if rounded:
+                self.drawer.rounded_fillrect(*opts)
+            else:
+                self.drawer.fillrect(*opts)
+        else:
+            if rounded:
+                self.drawer.rounded_rectangle(*opts)
+            else:
+                self.drawer.rectangle(*opts)
+        self.drawer.ctx.stroke()
+        self.layout.draw(x + self.pad_left, y + self.pad_top)
+
+    def draw_line(self, x, y, highlighted, inverted):
+        self.draw(x, y, line=True, highlight=highlighted, invert=inverted)
+
+
+class GroupBox(widget.groupbox.GroupBox):
+    defaults = [
+        (
+            "invert",
+            False,
+            "Invert line position when 'line' highlight method isn't highlighted.",
+        ),
+        (
+            "rainbow",
+            False,
+            "If set to True, 'colors' will be used instead of '*_screen_border'.",
+        ),
+        (
+            "colors",
+            False,
+            "Receive a list of strings."
+            "Allows each label to have its own independent/unique color when selected, overriding the 'active' parameter.",
+        ),
+        (
+            "icons",
+            {
+                "active": "",
+                "empty": "○",
+                "occupied": "◉",
+            },
+            "Will be used in the 'icon' highlight method.",
+        ),
+    ]
+
+    def __init__(self, **config):
+        super().__init__(**config)
+        self.add_defaults(GroupBox.defaults)
+
+    def _configure(self, qtile, bar):
+        super()._configure(qtile, bar)
+        self.layout.framed = framed.__get__(self.layout)
+
+    def drawbox(
+        self,
+        offset,
+        text,
+        bordercolor,
+        textcolor,
+        highlight_color=None,
+        width=None,
+        rounded=False,
+        block=False,
+        line=False,
+        highlighted=False,
+        inverted=False,
+    ):
+        self.layout.text = self.fmt.format(text)
+        self.layout.font_family = self.font
+        self.layout.font_size = self.fontsize
+        self.layout.colour = textcolor
+        if width is not None:
+            self.layout.width = width
+        if line:
+            pad_y = [
+                (self.bar.height - self.layout.height - self.borderwidth) / 2,
+                (self.bar.height - self.layout.height + self.borderwidth) / 2,
+            ]
+            if highlighted:
+                inverted = False
+        else:
+            pad_y = self.padding_y
+
+        if bordercolor is None:
+            # border colour is set to None when we don't want to draw a border at all
+            # Rather than dealing with alpha blending issues, we just set border width
+            # to 0.
+            border_width = 0
+            framecolor = self.background or self.bar.background
+        else:
+            border_width = self.borderwidth
+            framecolor = bordercolor
+
+        framed = self.layout.framed(border_width, framecolor, 0, pad_y, highlight_color)
+        y = self.margin_y
+        if self.center_aligned:
+            for t in widget.base.MarginMixin.defaults:
+                if t[0] == "margin":
+                    y += (self.bar.height - framed.height) / 2 - t[1]
+                    break
+        if block and bordercolor is not None:
+            framed.draw_fill(offset, y, rounded)
+        elif line:
+            framed.draw_line(offset, y, highlighted, inverted)
+        else:
+            framed.draw(offset, y, rounded)
+
+    def draw(self):
+        self.drawer.clear(self.background or self.bar.background)
+
+        def color(index: int) -> str:
+            try:
+                return self.colors[index]
+            except IndexError:
+                return "FFFFFF"
+
+        offset = self.margin_x
+        for i, g in enumerate(self.groups):
+            is_block = self.highlight_method == "block"
+            is_line = self.highlight_method == "line"
+            is_icon = self.highlight_method == "icon"
+            to_highlight = False
+
+            bw = self.box_width([g])
+
+            if self.group_has_urgent(g) and self.urgent_alert_method == "text":
+                text_color = self.urgent_text
+            elif g.windows:
+                text_color = color(i) if self.colors else self.active
+                icon = self.icons["occupied"]
+            else:
+                text_color = self.inactive
+                icon = self.icons["empty"]
+
+            if g.screen:
+                if self.highlight_method == "text":
+                    border = None
+                    text_color = self.this_current_screen_border
+                elif is_icon:
+                    icon = self.icons["active"]
+                    border = None
+                    text_color = (
+                        color(i) if self.colors else self.this_current_screen_border
+                    )
+                else:
+                    if self.block_highlight_text_color:
+                        text_color = self.block_highlight_text_color
+
+                    if self.bar.screen.group.name == g.name:
+                        if self.qtile.current_screen == self.bar.screen:
+                            if self.rainbow and self.colors:
+                                border = color(i) if g.windows else self.inactive
+                            else:
+                                border = self.this_current_screen_border
+                            to_highlight = True
+                        else:
+                            if self.rainbow and self.colors:
+                                border = color(i) if g.windows else self.inactive
+                            else:
+                                border = self.this_screen_border
+                            to_highlight = True
+
+                    else:
+                        if self.qtile.current_screen == g.screen:
+                            if self.rainbow and self.colors:
+                                border = color(i) if g.windows else self.inactive
+                            else:
+                                border = self.other_current_screen_border
+                        else:
+                            if self.rainbow and self.colors:
+                                border = color(i) if g.windows else self.inactive
+                            else:
+                                border = self.other_screen_border
+
+            elif self.group_has_urgent(g) and self.urgent_alert_method in (
+                "border",
+                "block",
+                "line",
+            ):
+                border = self.urgent_border
+                if self.urgent_alert_method == "block":
+                    is_block = True
+                elif self.urgent_alert_method == "line":
+                    is_line = True
+            else:
+                border = None
+
+            self.drawbox(
+                offset,
+                icon if is_icon else g.label,
+                border,
+                text_color,
+                highlight_color=self.highlight_color,
+                width=bw,
+                rounded=self.rounded,
+                block=is_block,
+                line=is_line,
+                highlighted=to_highlight,
+                inverted=self.invert,
+            )
+            offset += bw + self.spacing
+        self.drawer.draw(offsetx=self.offset, offsety=self.offsety, width=self.width)
 
 
 class MyWidgets:
@@ -75,7 +273,7 @@ class MyWidgets:
 
         self.termite = "alacritty"
 
-    def init_widgets_list(self):
+    def init_widgets_list_simple(self):
         """
         Function that returns the desired widgets in form of list
         """
@@ -89,7 +287,7 @@ class MyWidgets:
             widget.Image(
                 filename="~/.config/qtile/icons/terminal-iconx14.png",
                 mouse_callbacks={
-                    "Button1": lambda : cmds.call('dmenu_run -l 15 -p "Run: "')
+                    "Button1": lambda: cmds.call('dmenu_run -l 15 -p "Run: "')
                 },
             ),
             widget.Sep(
@@ -145,7 +343,7 @@ class MyWidgets:
                 background=self.colors[0],
                 foreground=self.colors[11],
                 padding=0,
-                fontsize=Sizes.sep_size,
+                fontsize=Sizes.widget_sep_size,
             ),
             widget.TextBox(
                 text=" 🖬",
@@ -160,14 +358,14 @@ class MyWidgets:
                 mouse_callbacks={
                     "Button1": lambda qtile: qtile.cmd_spawn(self.termite + " -e htop")
                 },
-                padding=5,
+                padding=50,
             ),
             widget.TextBox(
                 text="",
                 background=self.colors[11],
                 foreground=self.colors[10],
                 padding=0,
-                fontsize=Sizes.sep_size,
+                fontsize=Sizes.widget_sep_size,
             ),
             widget.TextBox(
                 text="  ",
@@ -186,7 +384,7 @@ class MyWidgets:
                 background=self.colors[10],
                 foreground=self.colors[9],
                 padding=0,
-                fontsize=Sizes.sep_size,
+                fontsize=Sizes.widget_sep_size,
             ),
             widget.CurrentLayoutIcon(
                 custom_icon_paths=[os.path.expanduser("~/.config/qtile/icons")],
@@ -203,15 +401,13 @@ class MyWidgets:
                 foreground=self.colors[8],
                 background=self.colors[9],
                 padding=0,
-                fontsize=Sizes.sep_size,
+                fontsize=Sizes.widget_sep_size,
             ),
             widget.Clock(
                 foreground=self.colors[7],
                 background=self.colors[8],
                 mouse_callbacks={
-                    "Button1": lambda qtile: qtile.cmd_spawn(
-                        "/usr/bin/kitty"
-                    )
+                    "Button1": lambda qtile: qtile.cmd_spawn("/usr/bin/kitty")
                 },
                 format="%B %d  [ %H:%M ]",
             ),
@@ -223,6 +419,114 @@ class MyWidgets:
             ),
         ]
         return widgets_list
+
+    def init_widgets_list_fancy(self):
+        # return self.init_widgets_list_simple()
+        from qtile_extras.widget.decorations import PowerLineDecoration, RectDecoration
+
+        powerline = {
+            "decorations": [
+                RectDecoration(
+                    use_widget_background=True, padding_y=5, filled=True, radius=0
+                ),
+                PowerLineDecoration(path="arrow_right", padding_y=5, size=40),
+            ]
+        }
+
+        def rectangle(side=""):
+            return {
+                "decorations": [
+                    RectDecoration(
+                        filled=True,
+                        radius={"left": [8, 0, 0, 8], "right": [0, 8, 8, 0]}.get(
+                            side, 8
+                        ),
+                        use_widget_background=True,
+                    )
+                ]
+            }
+
+        spacer_len = 1
+
+        def make_spacer():
+            return widget.Spacer(length=spacer_len)
+
+        def color(bg: str | None, fg: str | None) -> dict:
+            return {"background": bg, "foreground": fg}
+
+        def font():
+            return {
+                "font": "Symbols Nerd Font Mono Regular",
+                "fontsize": Sizes.widget_font_size,
+            }
+
+        def sep(fg, offset=0, padding=10):
+            return widget.textbox.TextBox(
+                **color(None, fg),
+                **font(),
+                offset=offset,
+                padding=padding,
+                text="󰇙",
+            )
+
+        return [
+            make_spacer(),
+            widget.textbox.TextBox(
+                padding=Sizes.widget_padding,
+                text="",
+                mouse_callbacks={"Button1": lazy.restart()},
+                **color(bg=palette.blue, fg=palette.base),
+                **powerline,
+                **font(),
+            ),
+            sep(fg=palette.base, padding=Sizes.widget_padding),
+            GroupBox(
+                **font(),
+                colors=[
+                    palette.teal,
+                    palette.pink,
+                    palette.yellow,
+                    palette.red,
+                    palette.blue,
+                    palette.green,
+                ],
+                highlight_color=palette.base,
+                highlight_method="line",
+                inactive=palette.surface2,
+                invert=True,
+                padding=6,
+                rainbow=True,
+            ),
+            sep(palette.surface2, offset=8, padding=2),
+            widget.textbox.TextBox(
+                **color(palette.red, palette.base),
+                **font(),
+                **rectangle("left"),
+                offset=-17,
+                padding=15,
+                text="",
+                x=-2,
+            ),
+            widget.Volume(
+                **color(palette.pink, palette.base),
+                **powerline,
+                check_mute_command="pamixer --get-mute",
+                check_mute_string="true",
+                get_volume_command="pamixer --get-volume-human",
+                mute_command="pamixer --toggle-mute",
+                update_interval=0.1,
+                volume_down_command="pamixer --decrease 5",
+                volume_up_command="pamixer --increase 5",
+            ),
+            widget.textbox.TextBox(text="Demo", padding=Sizes.widget_padding),
+            widget.CurrentLayoutIcon(background="000000", **powerline),
+            widget.WindowName(background="222222", **powerline),
+            widget.Clock(background="444444", **powerline),
+            widget.QuickExit(background="666666"),
+        ]
+
+    def init_widgets_list(self):
+        return self.init_widgets_list_fancy()
 
     def init_widgets_screen(self):
         """
@@ -238,7 +542,9 @@ class MyWidgets:
         It can be modified so it is useful if you  have a multimonitor system
         """
         widgets_screen2 = self.init_widgets_screen()
-        widgets_screen2 = [i for i in widgets_screen2 if not isinstance(i, widget.Systray)]
+        widgets_screen2 = [
+            i for i in widgets_screen2 if not isinstance(i, widget.Systray)
+        ]
         return widgets_screen2
 
     def init_screen(self):
@@ -247,9 +553,15 @@ class MyWidgets:
         """
         return [
             Screen(
-                top=bar.Bar(widgets=self.init_widgets_screen(), opacity=1.0, size=Sizes.bar_size)
+                top=bar.Bar(
+                    widgets=self.init_widgets_screen(), opacity=1.0, size=Sizes.bar_size
+                )
             ),
             Screen(
-                top=bar.Bar(widgets=self.init_widgets_screen2(), opacity=1.0, size=Sizes.bar_size)
+                top=bar.Bar(
+                    widgets=self.init_widgets_screen2(),
+                    opacity=1.0,
+                    size=Sizes.bar_size,
+                )
             ),
         ]

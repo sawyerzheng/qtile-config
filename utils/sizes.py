@@ -18,10 +18,13 @@ class Sizes:
 
     if wheight > 2000:
         bar_size = 38
+        widget_padding = 4
+
+
         group_name_size = 28
-        font_size = 32
-        padding = 4
-        sep_size = 65
+        widget_font_size = 32
+        widget_sep_size = 65
+        widget_default_padding = 4
 
         window_border_width = 2
 
@@ -31,10 +34,12 @@ class Sizes:
 
     else:  # wheight == 1920:
         bar_size = 20
+        widget_padding = 4
+
         group_name_size = 10
-        font_size = 14
-        sep_size = 37
-        padding = 2
+        widget_font_size = 14
+        widget_sep_size = 37
+        widget_default_padding = 2
 
         # window arangement sizes
         window_border_width = 1

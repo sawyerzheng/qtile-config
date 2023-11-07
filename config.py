@@ -10,11 +10,12 @@ from libqtile.lazy import lazy
 from libqtile.core.manager import Qtile
 from libqtile.utils import guess_terminal
 
+import widgets
 from utils import funcs, sizes, cmds
 from utils.cmds import Commands
 from keys import keys, mouse, groups
 from utils.sizes import Sizes
-from utils.palette import Catppuccin as palette
+from utils.palette import palette
 
 os.environ.update(cmds.my_set_env())
 
@@ -53,12 +54,10 @@ layouts = [
 
 widget_defaults = dict(
     font="sans",
-    fontsize=Sizes.font_size,
-    padding=Sizes.padding,
+    fontsize=Sizes.widget_font_size,
+    padding=Sizes.widget_default_padding,
 )
 extension_defaults = widget_defaults.copy()
-
-import widgets
 
 screens = widgets.MyWidgets().init_screen()
 
