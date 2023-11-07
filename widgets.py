@@ -422,16 +422,18 @@ class MyWidgets:
 
     def init_widgets_list_fancy(self):
         # return self.init_widgets_list_simple()
+        from qtile_extras import widget as widget_extra
         from qtile_extras.widget.decorations import PowerLineDecoration, RectDecoration
 
-        powerline = {
-            "decorations": [
-                RectDecoration(
-                    use_widget_background=True, padding_y=5, filled=True, radius=0
-                ),
-                PowerLineDecoration(path="arrow_right", padding_y=5, size=40),
-            ]
-        }
+        def powerline(path: str | list[tuple] = "arrow_right", size=10):
+            return {
+                "decorations": [
+                    PowerLineDecoration(
+                        path=path,
+                        size=size,
+                    ),
+                ]
+            }
 
         def rectangle(side=""):
             return {
@@ -442,14 +444,14 @@ class MyWidgets:
                             side, 8
                         ),
                         use_widget_background=True,
-                    )
+                    ),
                 ]
             }
 
         spacer_len = 1
 
-        def make_spacer():
-            return widget.Spacer(length=spacer_len)
+        def make_spacer(length=spacer_len):
+            return widget.Spacer(length=length)
 
         def color(bg: str | None, fg: str | None) -> dict:
             return {"background": bg, "foreground": fg}
@@ -471,15 +473,15 @@ class MyWidgets:
 
         return [
             make_spacer(),
-            widget.textbox.TextBox(
-                padding=Sizes.widget_padding,
+            widget_extra.TextBox(
+                padding=Sizes.widget_logo_padding,
                 text="",
                 mouse_callbacks={"Button1": lazy.restart()},
                 **color(bg=palette.blue, fg=palette.base),
-                **powerline,
+                **rectangle(),
                 **font(),
             ),
-            sep(fg=palette.base, padding=Sizes.widget_padding),
+            sep(fg=palette.surface2, padding=Sizes.widget_padding),
             GroupBox(
                 **font(),
                 colors=[
@@ -497,32 +499,132 @@ class MyWidgets:
                 padding=6,
                 rainbow=True,
             ),
-            sep(palette.surface2, offset=8, padding=2),
-            widget.textbox.TextBox(
-                **color(palette.red, palette.base),
+            sep(palette.surface2, offset=20, padding=0),
+            make_spacer(10),
+            widget_extra.TextBox(
+                **color(palette.pink, palette.base),
                 **font(),
                 **rectangle("left"),
-                offset=-17,
-                padding=15,
+                offset=10,
+                padding=20,
                 text="",
                 x=-2,
             ),
-            widget.Volume(
+            widget_extra.Volume(
                 **color(palette.pink, palette.base),
-                **powerline,
-                check_mute_command="pamixer --get-mute",
-                check_mute_string="true",
-                get_volume_command="pamixer --get-volume-human",
-                mute_command="pamixer --toggle-mute",
-                update_interval=0.1,
-                volume_down_command="pamixer --decrease 5",
-                volume_up_command="pamixer --increase 5",
+                **powerline("arrow_left", size=10),
+                # check_mute_command="pamixer --get-mute",
+                # check_mute_string="true",
+                # get_volume_command="pamixer --get-volume-human",
+                # mute_command="pamixer --toggle-mute",
+                # update_interval=0.1,
+                # volume_down_command="pamixer --decrease 5",
+                # volume_up_command="pamixer --increase 5",
             ),
-            widget.textbox.TextBox(text="Demo", padding=Sizes.widget_padding),
-            widget.CurrentLayoutIcon(background="000000", **powerline),
-            widget.WindowName(background="222222", **powerline),
-            widget.Clock(background="444444", **powerline),
-            widget.QuickExit(background="666666"),
+            # widget.Spacer(
+            #     linewidth=0,
+            #     padding=0,
+            #     **color(palette.red, palette.base),
+            # ),
+            widget_extra.TextBox(
+                **color(palette.red, palette.base),
+                **font(),
+                offset=-1,
+                text="",
+                x=-2,
+                padding=10,
+            ),
+            widget_extra.CheckUpdates(
+                distro="Arch",
+                **color(palette.red, palette.base),
+                **rectangle("right"),
+                # colour_have_updates=palette.red,
+                # colour_no_updates=palette.red,
+                # custom_command="checkupdates",
+                # display_format="{updates} updates  ",
+                display_format="{updates} ",
+                initial_text="0 ",
+                no_update_string="No updates  ",
+                padding=5,
+                update_interval=5,
+                offset=-5,
+                x=-5,
+            ),
+            widget.Spacer(),
+            # * window name
+            widget_extra.WindowName(
+                **color(None, palette.text),
+                format="{name}",
+                # max_chars=60,
+                # width=CALCULATED,
+            ),
+            widget.Spacer(),
+            # * cpu
+            widget_extra.TextBox(
+                **color(palette.green, palette.base),
+                **font(),
+                **rectangle("left"),
+                offset=-13,
+                padding=15,
+                text="󰍛",
+            ),
+            widget_extra.CPU(
+                **color(palette.green, palette.base),
+                **powerline("arrow_right"),
+                format="{load_percent:.0f}%",
+            ),
+            # * RAM
+            widget_extra.TextBox(
+                **color(palette.yellow, palette.base),
+                **font(),
+                offset=-1,
+                padding=5,
+                text="󰘚",
+            ),
+            widget_extra.Memory(
+                **color(palette.yellow, palette.base),
+                **powerline("arrow_right"),
+                format="{MemUsed: ,.0f}{mm} ",
+                padding=-3,
+            ),
+            # * DISK
+            widget_extra.TextBox(
+                **color(palette.teal, palette.base),
+                **font(),
+                offset=-1,
+                text="",
+                x=-2,
+            ),
+            widget_extra.DF(
+                **color(palette.teal, palette.base),
+                **rectangle("right"),
+                format="{f} GB  ",
+                padding=0,
+                partition="/",
+                visible_on_warn=False,
+                warn_color=palette.teal,
+            ),
+            sep(palette.surface2, offset=20, padding=10),
+            make_spacer(),
+            # * Time
+            widget_extra.TextBox(
+                **color(palette.pink, palette.base),
+                **font(),
+                **rectangle("left"),
+                offset=-14,
+                padding=15,
+                text="",
+            ),
+            widget_extra.Clock(
+                **color(palette.pink, palette.base),
+                **rectangle("right"),
+                format="%A - %I:%M %p ",
+                long_format="%B %-d, %Y ",
+                padding=7,
+            ),
+            make_spacer(),
+            # widget.QuickExit(background="666666"),
+            # make_spacer(),
         ]
 
     def init_widgets_list(self):
