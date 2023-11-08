@@ -425,7 +425,7 @@ class MyWidgets:
         from qtile_extras import widget as widget_extra
         from qtile_extras.widget.decorations import PowerLineDecoration, RectDecoration
 
-        def powerline(path: str | list[tuple] = "arrow_right", size=10):
+        def powerline(path: str | list[tuple] = "arrow_right", size=Sizes.powerline_size):
             return {
                 "decorations": [
                     PowerLineDecoration(
@@ -435,20 +435,20 @@ class MyWidgets:
                 ]
             }
 
-        def rectangle(side=""):
+        def rectangle(side="", param: float=Sizes.rectangle_parameter):
             return {
                 "decorations": [
                     RectDecoration(
                         filled=True,
-                        radius={"left": [8, 0, 0, 8], "right": [0, 8, 8, 0]}.get(
-                            side, 8
+                        radius={"left": [param, 0, 0, param], "right": [0, param, param, 0]}.get(
+                            side, param
                         ),
                         use_widget_background=True,
                     ),
                 ]
             }
 
-        spacer_len = 1
+        spacer_len = Sizes.widget_spacer_len
 
         def make_spacer(length=spacer_len):
             return widget.Spacer(length=length)
@@ -476,7 +476,8 @@ class MyWidgets:
             widget_extra.TextBox(
                 padding=Sizes.widget_logo_padding,
                 text="",
-                mouse_callbacks={"Button1": lazy.restart()},
+                mouse_callbacks={"Button3": lazy.restart(),
+                                 "Button1": cmds.spawn(cmds.Commands.rofi())},
                 **color(bg=palette.blue, fg=palette.base),
                 **rectangle(),
                 **font(),
@@ -506,13 +507,13 @@ class MyWidgets:
                 **font(),
                 **rectangle("left"),
                 offset=10,
-                padding=20,
+                padding=Sizes.widget_icon_padding,
                 text="",
                 x=-2,
             ),
             widget_extra.Volume(
                 **color(palette.pink, palette.base),
-                **powerline("arrow_left", size=10),
+                **powerline("arrow_left"),
                 # check_mute_command="pamixer --get-mute",
                 # check_mute_string="true",
                 # get_volume_command="pamixer --get-volume-human",
@@ -532,7 +533,7 @@ class MyWidgets:
                 offset=-1,
                 text="",
                 x=-2,
-                padding=10,
+                padding=Sizes.widget_icon_padding,
             ),
             widget_extra.CheckUpdates(
                 distro="Arch",
@@ -545,8 +546,8 @@ class MyWidgets:
                 display_format="{updates} ",
                 initial_text="0 ",
                 no_update_string="No updates  ",
-                padding=5,
-                update_interval=5,
+                padding=10,
+                update_interval=3600,
                 offset=-5,
                 x=-5,
             ),
@@ -565,7 +566,7 @@ class MyWidgets:
                 **font(),
                 **rectangle("left"),
                 offset=-13,
-                padding=15,
+                padding=Sizes.widget_icon_text_padding,
                 text="󰍛",
             ),
             widget_extra.CPU(
@@ -585,7 +586,7 @@ class MyWidgets:
                 **color(palette.yellow, palette.base),
                 **powerline("arrow_right"),
                 format="{MemUsed: ,.0f}{mm} ",
-                padding=-3,
+                padding=Sizes.widget_icon_text_ram_padding,
             ),
             # * DISK
             widget_extra.TextBox(
@@ -599,7 +600,7 @@ class MyWidgets:
                 **color(palette.teal, palette.base),
                 **rectangle("right"),
                 format="{f} GB  ",
-                padding=0,
+                padding=Sizes.widget_icon_text_padding,
                 partition="/",
                 visible_on_warn=False,
                 warn_color=palette.teal,
@@ -612,7 +613,7 @@ class MyWidgets:
                 **font(),
                 **rectangle("left"),
                 offset=-14,
-                padding=15,
+                padding=Sizes.widget_icon_padding,
                 text="",
             ),
             widget_extra.Clock(
@@ -620,7 +621,7 @@ class MyWidgets:
                 **rectangle("right"),
                 format="%A - %I:%M %p ",
                 long_format="%B %-d, %Y ",
-                padding=7,
+                padding=Sizes.widget_icon_text_padding,
             ),
             make_spacer(),
             # widget.QuickExit(background="666666"),
