@@ -37,9 +37,13 @@ class Sizes:
     widget_icon_padding = 15
     widget_icon_text_padding = 5
     # for check update
+    widget_icon_update_padding = 10
     widget_icon_text_update_padding = 10
     widget_icon_text_ram_padding = -3
     widget_spacer_len = int(window_single_margin*1.5)
+    # for clock
+    widget_icon_clock_padding = 5
+
 
     powerline_size = 10
     rectangle_parameter = 8
@@ -61,9 +65,12 @@ class Sizes:
         widget_icon_text_padding = 10
         widget_sep_padding = 10
         # for check update
+        widget_icon_update_padding = 15
         widget_icon_text_update_padding = 10
         widget_icon_text_ram_padding = -3
         widget_spacer_len = int(window_single_margin*1.5)
+        # for clock
+        widget_icon_clock_padding = 10
 
         widget_font_size = 32
         widget_sep_size = 65
