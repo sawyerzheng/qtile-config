@@ -632,7 +632,7 @@ class MyWidgets:
                 padding=Sizes.widget_icon_text_padding,
             ),
             sep(palette.surface2, offset=20, padding=Sizes.widget_sep_padding),
-            widget_extra.Systray(),
+            widget_extra.Systray(icon_size=Sizes.widget_font_size, padding=10),
             make_spacer(),
             # widget.QuickExit(background="666666"),
             # make_spacer(),
