@@ -48,14 +48,20 @@ class Commands:
 
     @classmethod
     def rofi(cls):
-        cmd = "~/.config/rofi/launchers/type-7/launcher.sh"
+        if cls.wheight > 2000:
+            cmd = "~/.config/rofi/launchers/type-7-4k/launcher.sh"
+        else:
+            cmd = "~/.config/rofi/launchers/type-7/launcher.sh"
         if Path(cmd).expanduser().exists():
             return "/usr/bin/bash " + str(Path(cmd).expanduser())
         return "/usr/bin/rofi -show combi"
 
     @classmethod
     def powermenu(cls):
-        return str(Path("~/.config/rofi/powermenu/type-1/powermenu.sh").expanduser())
+        if cls.wheight > 2000:
+            return str(Path("~/.config/rofi/powermenu/type-1-4k/powermenu.sh").expanduser())
+        else:
+            return str(Path("~/.config/rofi/powermenu/type-1/powermenu.sh").expanduser())
 
     @classmethod
     def lockscreen(cls):
