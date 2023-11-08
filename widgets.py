@@ -477,6 +477,7 @@ class MyWidgets:
                 padding=Sizes.widget_logo_padding,
                 text="",
                 mouse_callbacks={"Button3": lazy.restart(),
+                                 "Button2": cmds.spawn(cmds.Commands.powermenu()),
                                  "Button1": cmds.spawn(cmds.Commands.rofi())},
                 **color(bg=palette.blue, fg=palette.base),
                 **rectangle(),
@@ -605,7 +606,7 @@ class MyWidgets:
                 visible_on_warn=False,
                 warn_color=palette.teal,
             ),
-            sep(palette.surface2, offset=20, padding=10),
+            sep(palette.surface2, offset=20, padding=Sizes.widget_sep_padding),
             make_spacer(),
             # * Time
             widget_extra.TextBox(
@@ -623,6 +624,8 @@ class MyWidgets:
                 long_format="%B %-d, %Y ",
                 padding=Sizes.widget_icon_text_padding,
             ),
+            sep(palette.surface2, offset=20, padding=Sizes.widget_sep_padding),
+            widget_extra.Systray(),
             make_spacer(),
             # widget.QuickExit(background="666666"),
             # make_spacer(),

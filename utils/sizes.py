@@ -25,15 +25,17 @@ class Sizes:
     # ** widgets
     # wheight == 1920:
     bar_size = 20
+    group_name_size = 10
+
     widget_padding = 4
     widget_logo_padding = 20
+    widget_sep_padding = 5
 
-    group_name_size = 10
     widget_font_size = 14
     widget_sep_size = 37
     widget_default_padding = 2
     widget_icon_padding = 15
-    widget_icon_text_padding = 10
+    widget_icon_text_padding = 5
     # for check update
     widget_icon_text_update_padding = 10
     widget_icon_text_ram_padding = -3
@@ -52,16 +54,17 @@ class Sizes:
 
         # ** widgets
         bar_size = 38
+        group_name_size = 28
         widget_padding = 4
         widget_logo_padding = 25
         widget_icon_padding = 15
         widget_icon_text_padding = 10
+        widget_sep_padding = 10
         # for check update
         widget_icon_text_update_padding = 10
         widget_icon_text_ram_padding = -3
         widget_spacer_len = int(window_single_margin*1.5)
 
-        group_name_size = 28
         widget_font_size = 32
         widget_sep_size = 65
         widget_default_padding = 4
