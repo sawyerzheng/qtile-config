@@ -39,7 +39,7 @@ class Sizes:
     widget_icon_text_ram_padding = -3
     widget_spacer_len = int(window_single_margin*1.5)
 
-    powerline_size = 20
+    powerline_size = 10
     rectangle_parameter = 8
 
     # * 4k screen
