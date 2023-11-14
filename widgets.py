@@ -607,7 +607,7 @@ class MyWidgets:
                 warn_color=palette.teal,
             ),
             sep(palette.surface2, offset=20, padding=Sizes.widget_sep_padding),
-            make_spacer(),
+            # make_spacer(),
             # * Time
             widget_extra.TextBox(
                 **color(palette.pink, palette.base),
