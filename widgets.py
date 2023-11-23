@@ -557,8 +557,9 @@ class MyWidgets:
             widget_extra.WindowName(
                 **color(None, palette.text),
                 format="{name}",
-                # max_chars=60,
-                # width=CALCULATED,
+                max_chars=30,
+                width=bar.CALCULATED,
+                align="left",
             ),
             widget.Spacer(),
             # * cpu
