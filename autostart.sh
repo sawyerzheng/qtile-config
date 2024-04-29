@@ -12,3 +12,5 @@ ibus-daemon -drx&
 ~/programs/clash/cfw &
 
 nitrogen --restore&
+
+# bash ~/.config/polybar/forest/launch.sh &

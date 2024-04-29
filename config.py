@@ -17,7 +17,11 @@ from keys import keys, mouse, groups
 from utils.sizes import Sizes
 from utils.palette import palette
 
+# * config by environment variables
+QTILE_USE_POLYBAR = os.environ.get("QTILE_USE_POLYBAR", "True").strip().lower() in ["1", "true", "on"]
+
 os.environ.update(cmds.my_set_env())
+
 
 qtile_path = Path(__file__).parent.expanduser().absolute()
 
@@ -41,7 +45,7 @@ layouts = [
     layout.Max(**layout_config),
     # Try more layouts by unleashing below layouts.
     # layout.Stack(num_stacks=2),
-    # layout.Bsp(),
+    layout.Bsp(**layout_config),
     # layout.Matrix(),
     # layout.MonadTall(),
     # layout.MonadWide(),
@@ -59,8 +63,10 @@ widget_defaults = dict(
 )
 extension_defaults = widget_defaults.copy()
 
-screens = widgets.MyWidgets().init_screen()
-
+if not QTILE_USE_POLYBAR:
+    screens = widgets.MyWidgets().init_screen()
+else:
+    screens = [widgets.Screen()]
 
 
 dgroups_key_binder = None
@@ -106,7 +112,7 @@ wmname = "LG3D"
 @hook.subscribe.startup_once
 def startup_once():
     subprocess.run(
-        shlex.split(f'/usr/bin/bash -c {str(qtile_path.joinpath("autostart.sh"))}')
+        shlex.split(f'/usr/bin/bash {str(qtile_path.joinpath("autostart.sh"))}')
     )
 
 
@@ -114,9 +120,19 @@ def startup_once():
 def startup():
     # my_screen.bottom.show(True)
     # my_spawn("killall -9 polybar")
-    wheight = sizes.screen_size()
-    # if wheight > 2000:
-    #     my_spawn("polybar -r mybar-4k&")
-    # else:
-    #     pass
-    #     # subprocess.call(shlex.split("/usr/bin/polybar -r mybar&"))
+    wheight = sizes.Sizes.wheight
+    if wheight > 2000:
+        subprocess.run(
+            shlex.split(f'/usr/bin/bash {str(qtile_path.joinpath("autostart_reload_4k.sh"))}')
+        )
+    else:
+        subprocess.run(
+            shlex.split(f'/usr/bin/bash {str(qtile_path.joinpath("autostart_reload.sh"))}')
+        )
+        # subprocess.call(shlex.split("/usr/bin/polybar -r mybar&"))
+
+    # file = qtile_path.joinpath("autostart_reload_default.sh")
+    # if file.exists():
+    #     subprocess.run(
+    #         shlex.split(f'/usr/bin/bash -c {file.as_posix()}')
+    #     )

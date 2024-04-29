@@ -5,11 +5,11 @@ from pathlib import Path
 
 from libqtile.lazy import lazy
 
-from .sizes import screen_size
+from .sizes import Sizes
 
 
 def my_set_env():
-    wheight = screen_size()
+    wheight = Sizes.wheight
     envs = os.environ.copy()
 
     # ibus
@@ -40,7 +40,7 @@ def call(cmd):
     return subprocess.call(shlex.split(cmd), env=my_set_env())
 
 class Commands:
-    wheight = screen_size()
+    wheight = Sizes.wheight
 
     @classmethod
     def terminal(cls):
@@ -55,6 +55,26 @@ class Commands:
         if Path(cmd).expanduser().exists():
             return "/usr/bin/bash " + str(Path(cmd).expanduser())
         return "/usr/bin/rofi -show combi"
+
+    @classmethod
+    def window_rofi(cls):
+        if cls.wheight > 2000:
+            cmd = "~/.config/rofi/launchers/type-7-4k/window.sh"
+        else:
+            cmd = "~/.config/rofi/launchers/type-7/window.sh"
+        if Path(cmd).expanduser().exists():
+            return "/usr/bin/bash " + str(Path(cmd).expanduser())
+        return "/usr/bin/rofi -show window"
+
+    @classmethod
+    def select_mode_rofi(cls):
+        if cls.wheight > 2000:
+            cmd = "~/.config/rofi/launchers/type-7-4k/select.sh"
+        else:
+            cmd = "~/.config/rofi/launchers/type-7/select.sh"
+        if Path(cmd).expanduser().exists():
+            return "/usr/bin/bash " + str(Path(cmd).expanduser())
+        return '/usr/bin/bash -c echo -e "window\nrun\ndrun\nssh" | rofi -dmenu | xargs -n1  -I {} rofi -show {}'
 
     @classmethod
     def powermenu(cls):

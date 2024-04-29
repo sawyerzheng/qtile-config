@@ -1,3 +1,5 @@
+import os
+
 def screen_size():
     # from tkinter import Tk
     # wheight = Tk().winfo_screenheight()
@@ -12,10 +14,14 @@ def screen_size():
         wheight = 2160
     return wheight
 
+try:
+    env_wheight = int(os.environ.get("QTILE_WINDOW_HEIGHT"))
+except Exception:
+    env_wheight = screen_size()
+
 
 class Sizes:
-    wheight = screen_size()
-
+    wheight = env_wheight
     # * 1920x1080
     # ** window arangement sizes
     window_border_width = 1

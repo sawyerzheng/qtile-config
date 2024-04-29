@@ -7,10 +7,8 @@ from libqtile.lazy import lazy
 from utils import funcs, sizes, cmds
 from utils.cmds import Commands
 
-mod = "mod4"  # super key
-mod1 = "mod1"
-# mod = "mod1"                    # alt key
-# mod = "mod3"
+win = "mod4"  # super key
+alt = "mod1"
 # "mod1"：Alt键（按键符号为"Mod1"）
 # "mod2"：Num Lock键（按键符号为"Mod2"）
 # "mod3"：Caps Lock键（按键符号为"Mod3"）
@@ -18,169 +16,128 @@ mod1 = "mod1"
 # "mod5"：Scroll Lock键（按键符号为"Mod5"）
 
 
+# * kyes
 keys = [
     # A list of available commands that can be bound to keys can be found
     # at https://docs.qtile.org/en/latest/manual/config/lazy.html
-    # Switch between windows
-    Key([mod], "h", lazy.layout.left(), desc="Move focus to left"),
-    Key([mod], "l", lazy.layout.right(), desc="Move focus to right"),
-    Key([mod], "j", lazy.layout.down(), desc="Move focus down"),
-    Key([mod], "k", lazy.layout.up(), desc="Move focus up"),
-    Key(
-        [mod], "space", funcs.my_next_keyboard, desc="Move window focus to other window"
-    ),
-    Key([mod], "o", lazy.layout.next(), desc="Move window focus to other window"),
-    # Move windows between left/right columns or move up/down in current stack.
-    # Moving out of range in Columns layout will create new column.
-    Key(
-        [mod, "shift"], "h", lazy.layout.shuffle_left(), desc="Move window to the left"
-    ),
-    Key(
-        [mod, "shift"],
-        "l",
-        lazy.layout.shuffle_right(),
-        desc="Move window to the right",
-    ),
-    Key([mod, "shift"], "j", lazy.layout.shuffle_down(), desc="Move window down"),
-    Key([mod, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
-    # Grow windows. If current window is on the edge of screen and direction
-    # will be to screen edge - window would shrink.
-    Key([mod, "control"], "h", lazy.layout.grow_left(), desc="Grow window to the left"),
-    Key(
-        [mod, "control"], "l", lazy.layout.grow_right(), desc="Grow window to the right"
-    ),
-    Key([mod, "control"], "j", lazy.layout.grow_down(), desc="Grow window down"),
-    Key([mod, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
-    Key([mod], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
+    # fmt: off
+
+# ** 输入法 input method toggle
+
+    # Toggle between different layouts as defined below
+    Key([win], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
+
+
+# ** layout
+
+# *** change layout method
+    Key([win], "space", funcs.my_next_keyboard, desc="Move window focus to other window"),
+
+
+# *** vertial vs horizontal layout
     # Toggle between split and unsplit sides of stack.
     # Split = all windows displayed
     # Unsplit = 1 window displayed, like Max layout, but still with
     # multiple stack panes
-    Key(
-        [mod, "shift"],
-        "Return",
-        lazy.layout.toggle_split(),
-        desc="Toggle between split and unsplit sides of stack",
-    ),
-    # Toggle between different layouts as defined below
-    Key([mod], "Tab", lazy.next_layout(), desc="Toggle between layouts"),
-    Key([mod], "w", lazy.window.kill(), desc="Kill focused window"),
-    Key([mod, "shift"], "w", cmds.spawn("xkill"), desc="force to kill window"),
-    Key(
-        [mod],
-        "f",
-        lazy.window.toggle_fullscreen(),
-        desc="Toggle fullscreen on the focused window",
-    ),
-    Key(
-        [mod],
-        "t",
-        lazy.window.toggle_floating(),
-        desc="Toggle floating on the focused window",
-    ),
-    Key([mod, "control"], "r", lazy.reload_config(), desc="Reload the config"),
-    Key([mod, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
-    # spawn
-    Key(
-        [mod],
-        "r",
-        cmds.spawn(Commands.rofi()),
-        desc="Spawn a command using a prompt widget",
-    ),
-    Key([mod], "p", cmds.spawn("/usr/bin/dmenu_run -l 15"), desc="dmenu"),
-    # * applications
+    Key([win, "shift"], "Return", lazy.layout.toggle_split(), desc="Toggle between split and unsplit sides of stack"),
+
+
+# ** windows
+
+# *** window focus
+    Key([win], "h", lazy.layout.left(), desc="Move focus to left"),
+    Key([win], "l", lazy.layout.right(), desc="Move focus to right"),
+    Key([win], "j", lazy.layout.down(), desc="Move focus down"),
+    Key([win], "k", lazy.layout.up(), desc="Move focus up"),
+
+    Key([win, alt], "Left", lazy.layout.left(), desc="Move focus to left"),
+    Key([win, alt], "Right", lazy.layout.right(), desc="Move focus to right"),
+    Key([win, alt], "Down", lazy.layout.down(), desc="Move focus down"),
+    Key([win, alt], "Up", lazy.layout.up(), desc="Move focus up"),
+
+
+
+# *** switch window no direction
+    Key([win], "o", lazy.layout.next(), desc="Move window focus to other window"),
+    Key([alt], "Tab", cmds.spawn(Commands.window_rofi()), desc="Move window focus to other window"),
+    # Key([alt], "Tab", lazy.layout.next(), desc="Move window focus to other window"),
+    # Key([alt, "shift"], "Tab", lazy.layout.previous(), desc="Move window focus to other window"),
+
+
+# *** move window
+    # Move windows between left/right columns or move up/down in current stack.
+    # Moving out of range in Columns layout will create new column.
+    Key([win, "shift"], "h", lazy.layout.shuffle_left(), desc="Move window to the left"),
+    Key([win, "shift"], "l", lazy.layout.shuffle_right(), desc="Move window to the right"),
+    Key([win, "shift"], "j", lazy.layout.shuffle_down(), desc="Move window down"),
+    Key([win, "shift"], "k", lazy.layout.shuffle_up(), desc="Move window up"),
+
+# *** resize window
+    # Grow windows. If current window is on the edge of screen and direction
+    # will be to screen edge - window would shrink.
+    Key([win, "control"], "h", lazy.layout.grow_left(), desc="Grow window to the left"),
+    Key([win, "control"], "l", lazy.layout.grow_right(), desc="Grow window to the right"),
+    Key([win, "control"], "j", lazy.layout.grow_down(), desc="Grow window down"),
+    Key([win, "control"], "k", lazy.layout.grow_up(), desc="Grow window up"),
+    Key([win], "n", lazy.layout.normalize(), desc="Reset all window sizes"),
+
+    Key([win], "w", lazy.window.kill(), desc="Kill focused window"),
+    Key([win, "shift"], "w", cmds.spawn("xkill"), desc="force to kill window"),
+    Key([win], "f", lazy.window.toggle_fullscreen(), desc="Toggle fullscreen on the focused window"),
+    Key([win], "t", lazy.window.toggle_floating(), desc="Toggle floating on the focused window"),
+    Key([win, "control"], "r", lazy.reload_config(), desc="Reload the config"),
+    Key([win, "control"], "q", lazy.shutdown(), desc="Shutdown Qtile"),
+
+# ** spawn
+    Key([win], "r", cmds.spawn(Commands.rofi()), desc="Spawn a command using a prompt widget"),
+
+    Key([win, "shift"], "r", cmds.spawn(Commands.select_mode_rofi()), desc="Spawn a command using a prompt widget"),
+    Key([win], "p", cmds.spawn("/usr/bin/dmenu_run -l 15"), desc="dmenu"),
+
+# ** applications
     # qtile lock
-    Key([mod, "mod1"], "l", cmds.spawn(Commands.lockscreen()), desc="lock screen"),
+    Key([win, alt], "l", cmds.spawn(Commands.lockscreen()), desc="lock screen"),
     # power menu
-    Key([mod, "mod1"], "p", cmds.spawn(Commands.powermenu()), desc="powermenu"),
+    Key([win, alt], "p", cmds.spawn(Commands.powermenu()), desc="powermenu"),
     # terminal
-    Key([mod], "Return", lazy.spawn(Commands.terminal()), desc="Launch terminal"),
-    Key([mod, "control"], "t", lazy.spawn(Commands.terminal()), desc="Launch terminal"),
-    # move window to screen: Mod + ctrl
-    Key(
-        [mod, "control"],
-        "m",
-        funcs.window_to_next_screen,
-    ),
-    Key(
-        [mod, "control"],
-        "period",
-        funcs.window_to_previous_screen,
-    ),
-    Key(
-        [mod, "control"],
-        "o",
-        funcs.window_switch_screen,
-    ),
-    # move window to left/right group(workspace)
-    Key(
-        [mod, "control"],
-        "p",
-        funcs.window_to_prev_group,
-    ),
-    Key(
-        [mod, "control"],
-        "n",
-        funcs.window_to_next_group,
-    ),
-    Key(
-        [mod, "control"],
-        "Left",
-        funcs.window_to_prev_group,
-    ),
-    Key(
-        [mod, "control"],
-        "Right",
-        funcs.window_to_next_group,
-    ),
-    # switch focus group: mod + shift
-    Key(
-        [mod, "shift"],
-        "o",
-        # lazy.function(latest_group),
-        lazy.screen.toggle_group(),
-    ),
-    Key(
-        [mod, "shift"],
-        "p",
-        # lazy.screen.prev_group(skip_empty=True, skip_managed=True),
-        funcs.goto_prev_group,
-    ),
-    Key(
-        [mod, "shift"],
-        "n",
-        # lazy.screen.next_group(skip_empty=True, skip_managed=True),
-        funcs.goto_next_group,
-    ),
-    Key(
-        [mod, "shift"],
-        "Left",
-        funcs.goto_prev_group,
-    ),
-    Key(
-        [mod, "shift"],
-        "Right",
-        funcs.goto_next_group,
-    ),
+    Key([win], "Return", lazy.spawn(Commands.terminal()), desc="Launch terminal"),
+    Key([win, "control"], "t", lazy.spawn(Commands.terminal()), desc="Launch terminal"),
 
-    # focus: go next screen
-    Key(
-        [mod, "shift"],
-        "comma",
-        funcs.goto_next_screen,
-    ),
-    Key(
-        [mod],
-        "comma",
-        funcs.goto_next_screen,
-    ),
+# ** group
+# *** switch focus group: mod + ctrol
+    Key([win, "control"], "o", lazy.screen.toggle_group()),
+    Key([win, "control"], "p", funcs.goto_prev_group),
+    Key([win, "control"], "n", funcs.goto_next_group),
+    Key([win, "control"], "Left", funcs.goto_prev_group),
+    Key([win, "control"], "Right", funcs.goto_next_group),
+
+# *** group move window to left/right group(workspace)
+    Key([win, "shift"], "p", funcs.window_to_prev_group),
+    Key([win, "shift"], "n", funcs.window_to_next_group),
+    Key([win, "control", "shift"], "Left", funcs.window_to_prev_group),
+    Key([win, "control", "shift"], "Right", funcs.window_to_prev_group),
 
 
-    # bar hide show
-    Key([mod, "control"], "x", lazy.hide_show_bar()),
+# ** screen
+# *** screen toggle, focus: go next screen
+    Key([win, "control"], "comma", funcs.goto_next_screen),
+    Key([win], "comma", funcs.goto_next_screen),
+
+# *** screen, move window to screen: Mod + shift, shift -> move
+    Key([win, "shift"], "m", funcs.window_to_next_screen),
+    Key([win, "shift"], "period", funcs.window_to_previous_screen),
+    Key([win, "shift"], "o", funcs.window_switch_screen),
+    Key([win, "shift"], "Left", funcs.window_to_previous_screen),
+    Key([win, "shift"], "Right", funcs.window_to_next_screen),
+
+
+
+# ** bar hide show
+    Key([win, "control"], "x", lazy.hide_show_bar()),
+    # fmt: on
 ]
 
-
+# * groups
 groups = [Group(i) for i in "123456789"]
 
 for i in groups:
@@ -188,14 +145,14 @@ for i in groups:
         [
             # mod1 + letter of group = switch to group
             Key(
-                [mod],
+                [win],
                 i.name,
                 lazy.group[i.name].toscreen(),
                 desc="Switch to group {}".format(i.name),
             ),
             # mod1 + shift + letter of group = switch to & move focused window to group
             Key(
-                [mod, "shift"],
+                [win, "shift"],
                 i.name,
                 lazy.window.togroup(i.name, switch_group=True),
                 desc="Switch to move focused window to group {}".format(i.name),
@@ -231,7 +188,7 @@ keys.extend(
     [
         # mod1 -> alt key
         Key(
-            [mod],
+            [win],
             "slash",
             lazy.group["scratchpad"].dropdown_toggle("terminal"),
         ),
@@ -241,16 +198,16 @@ keys.extend(
 # Drag floating layouts.
 mouse = [
     Drag(
-        [mod],
+        [win],
         "Button1",
         lazy.window.set_position_floating(),
         start=lazy.window.get_position(),
     ),
     Drag(
-        [mod],
+        [win],
         "Button3",
         lazy.window.set_size_floating(),
         start=lazy.window.get_size(),
     ),
-    Click([mod], "Button2", lazy.window.bring_to_front()),
+    Click([win], "Button2", lazy.window.bring_to_front()),
 ]
